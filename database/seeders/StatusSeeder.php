@@ -18,7 +18,7 @@ class StatusSeeder extends Seeder
         Schema::disableForeignKeyConstraints();
 
         // Kosongkan tabel
-        DB::table('status')->truncate();
+        // DB::table('status')->truncate();
 
         // Aktifkan kembali pemeriksaan foreign key
         Schema::enableForeignKeyConstraints();

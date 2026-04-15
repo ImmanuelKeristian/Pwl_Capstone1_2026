@@ -1,9 +1,24 @@
-{{-- resources/views/events/guest-index.blade.php --}}
+{{-- resources/views/guest.blade.php --}}
 @extends('layouts.master')
 
-@section('title', 'Daftar Event Universitas')
+@section('title', 'Daftar Event')
 
 @section('web-content')
+
+@auth
+    <div class="alert alert-danger mx-4 mt-4 text-center">
+        <strong>DEBUG MODE:</strong> 
+        You are logged in as: {{ auth()->user()->name }} | 
+        Your exact role is: "{{ auth()->user()->role }}"
+    </div>
+@else
+    <div class="alert alert-danger mx-4 mt-4 text-center">
+        <strong>DEBUG MODE:</strong> Laravel thinks you are NOT logged in right now.
+    </div>
+@endauth
+
+<h1 style="color: red; font-size: 50px; text-align: center;">TESTING LAYAR 123</h1>
+
 <div class="container-xxl flex-grow-1 container-p-y">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h4 class="fw-bold"><span class="text-muted fw-light">Event /</span> Daftar Event</h4>
@@ -24,6 +39,108 @@
             @endif
         </form>
     </div>
+
+    {{-- AWAL FITUR ANALITIK UNTUK ADMIN/PANITIA/KEUANGAN --}}
+    @auth
+        @if(auth()->user()->role !== 'member')
+        <div class="card bg-transparent shadow-none border-0 mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold m-0"><i class="bx bx-bar-chart-alt-2 me-2"></i>Ringkasan Analitik Event</h5>
+                <div>
+                    {{-- Di dalam resources/views/events/guest-index.blade.php --}}
+                    <a href="{{ route('events.export.excel') }}" class="btn btn-sm btn-success me-1">
+                        <i class="bx bx-spreadsheet me-1"></i> Export Excel
+                    </a>
+                    <a href="{{ route('events.export.pdf') }}" class="btn btn-sm btn-danger">
+                        <i class="bx bxs-file-pdf me-1"></i> Export PDF
+                    </a>
+                </div>
+            </div>
+
+            <div class="row g-4 mb-4">
+                {{-- Total Revenue --}}
+                <div class="col-sm-6 col-xl-3">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-body">
+                            <div class="d-flex align-items-start justify-content-between">
+                                <div class="content-left">
+                                    <span>Total Revenue</span>
+                                    <div class="d-flex align-items-end mt-2">
+                                        <h4 class="mb-0 me-2">Rp 0</h4>
+                                    </div>
+                                    <small>Pendapatan keseluruhan</small>
+                                </div>
+                                <span class="badge bg-label-success rounded p-2">
+                                    <i class="bx bx-dollar bx-sm"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Statistik Penjualan --}}
+                <div class="col-sm-6 col-xl-3">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-body">
+                            <div class="d-flex align-items-start justify-content-between">
+                                <div class="content-left">
+                                    <span>Statistik Penjualan</span>
+                                    <div class="d-flex align-items-end mt-2">
+                                        <h4 class="mb-0 me-2">0</h4>
+                                    </div>
+                                    <small>Tiket/Registrasi berhasil</small>
+                                </div>
+                                <span class="badge bg-label-primary rounded p-2">
+                                    <i class="bx bx-cart bx-sm"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Event Performance Analytics --}}
+                <div class="col-sm-6 col-xl-6">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-body">
+                            <div class="d-flex align-items-start justify-content-between mb-2">
+                                <span>Event Performance Analytics</span>
+                                <span class="badge bg-label-info rounded p-2">
+                                    <i class="bx bx-trending-up bx-sm"></i>
+                                </span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mt-3">
+                                <div>
+                                    <h6 class="mb-0">Tingkat Kehadiran</h6>
+                                    <span class="text-muted small">0% rata-rata</span>
+                                </div>
+                                <div>
+                                    <h6 class="mb-0">Event Aktif</h6>
+                                    <span class="text-muted small">0 event</span>
+                                </div>
+                                <div>
+                                    <h6 class="mb-0">Pertumbuhan</h6>
+                                    <span class="text-success small"><i class="bx bx-chevron-up"></i> 0%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Grafik Transaksi --}}
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <h6 class="m-0">Grafik Transaksi Registrasi</h6>
+                </div>
+                <div class="card-body">
+                    {{-- Tempatkan Canvas Chart.js di sini --}}
+                    <canvas id="transactionChart" style="height: 250px; width: 100%;"></canvas>
+                </div>
+            </div>
+        </div>
+        @endif
+    @endauth
+    {{-- AKHIR FITUR ANALITIK --}}
 
     @if(!isset($events) || $events->isEmpty())
         <div class="alert alert-warning text-center" role="alert">
@@ -115,6 +232,37 @@
 @endsection
 
 @push('scripts')
+{{-- Script untuk memuat Chart.js (Hanya jika belum dimuat di layout utama) --}}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var ctx = document.getElementById('transactionChart');
+        if (ctx) {
+            var myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul'], 
+                    datasets: [{
+                        label: 'Total Transaksi',
+                        data: [12, 19, 3, 5, 2, 3, 15], 
+                        backgroundColor: 'rgba(105, 108, 255, 0.2)',
+                        borderColor: 'rgba(105, 108, 255, 1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+    });
 </script>
 @endpush

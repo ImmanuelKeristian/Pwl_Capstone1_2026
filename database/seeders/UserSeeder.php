@@ -14,7 +14,7 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         // Kosongkan tabel sebelum mengisi
-        User::truncate();
+        // User::truncate();
 
         // Buat pengguna dengan peran yang berbeda-beda
         User::create([

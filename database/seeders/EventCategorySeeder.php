@@ -13,7 +13,7 @@ class EventCategorySeeder extends Seeder
     public function run(): void
     {
         // Kosongkan tabel sebelum mengisi untuk menghindari duplikasi
-        DB::table('event_categories')->truncate();
+        // DB::table('event_categories')->truncate();
 
         DB::table('event_categories')->insert([
             ['name' => 'Seminar'],

@@ -51,7 +51,7 @@
                         <td>{{ $session->session_date->format('d M Y') }}, {{ date('H:i', strtotime($session->start_time)) }} - {{ date('H:i', strtotime($session->end_time)) }}</td>
                         <td>{{ $session->location }}</td>
                         <td>{{ $session->speaker }}</td>
-                        <td><span class="badge bg-label-info">{{ $session->eventRegistrations->count() }} / {{ $session->max_participants }}</span></td>
+                        <td><span class="badge bg-label-info">{{ $session->eventRegisters->count() }} / {{ $session->max_participants }}</span></td>
                         <td>
                             <div class="d-flex">
                                 <a href="{{ route('committee.sessions.edit', $session->id) }}" class="btn btn-icon btn-sm btn-warning me-2"><i class="bx bx-edit-alt"></i></a>

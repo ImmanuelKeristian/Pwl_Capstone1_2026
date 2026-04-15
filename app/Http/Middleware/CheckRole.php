@@ -4,7 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth; // Pastikan Auth di-import
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
 class CheckRole
@@ -14,26 +14,21 @@ class CheckRole
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  \Closure  $next
-     * @param  string  ...$roles  // Kita akan menerima satu atau lebih peran sebagai argumen
+     * @param  string  ...$roles  // Menangkap satu atau lebih peran yang diizinkan
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function handle(Request $request, Closure $next, ...$roles): Response
     {
-        // Pertama, pastikan pengguna sudah login.
         if (!Auth::check()) {
             return redirect('login');
         }
 
         $user = Auth::user();
 
-        
-        foreach ($roles as $role) {
-            if ($user->role == $role) {
-                return $next($request); 
-            }
+        if (in_array($user->role, $roles)) {
+            return $next($request); 
         }
 
-
-        return redirect('/')->with('error', 'Anda tidak diizinkan mengakses halaman tersebut.');
+        return redirect('/')->with('error', 'Akses ditolak: Anda tidak memiliki izin untuk mengakses halaman tersebut.');
     }
 }

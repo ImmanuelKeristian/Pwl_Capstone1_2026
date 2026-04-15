@@ -56,7 +56,7 @@
                             {{-- Info Kuota & Tombol Aksi --}}
                             <div class="text-md-end">
                                 @php
-                                    $kuotaTerisi = $session->eventRegistrations->count();
+                                    $kuotaTerisi = $session->eventRegisters->count();
                                     $sisaKuota = $session->max_participants - $kuotaTerisi;
                                     $isFull = $sisaKuota <= 0;
                                 @endphp

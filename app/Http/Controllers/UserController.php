@@ -6,7 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
-use Illuminate\Support\Facades\Auth; 
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash; 
 
 class UserController extends Controller
 {
@@ -19,6 +20,34 @@ class UserController extends Controller
         // admin mengunci atau menghapus akunnya sendiri.
         $users = User::where('id', '!=', Auth::id())->orderBy('name')->paginate(15);
         return view('admin.users.index', compact('users'));
+    }
+
+    /**
+     * Menampilkan form untuk menambah pengguna baru.
+     */
+    public function create()
+    {
+        return view('admin.users.create');
+    }
+
+    /**
+     * Menyimpan pengguna baru ke database.
+     */
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'name'     => 'required|string|max:255',
+            'email'    => 'required|string|email|max:255|unique:users',
+            'role'     => ['required', Rule::in(['member', 'panitia_kegiatan', 'tim_keuangan', 'administrator'])],
+            'password' => 'required|string|min:8|confirmed', 
+        ]);
+
+        $validated['password'] = Hash::make($validated['password']);
+
+        User::create($validated);
+
+        return redirect()->route('admin.users.index')
+                         ->with('success', 'Pengguna baru berhasil ditambahkan!');
     }
 
     /**
@@ -57,11 +86,6 @@ class UserController extends Controller
         if ($user->id === Auth::id()) {
             return back()->with('error', 'Anda tidak dapat menghapus akun Anda sendiri.');
         }
-
-        // PENTING: Disarankan untuk tidak menghapus permanen data pengguna.
-        // Opsi yang lebih baik adalah menambahkan kolom 'is_active' (boolean)
-        // dan menonaktifkannya: $user->update(['is_active' => false]);
-        // Namun, untuk saat ini kita akan menghapusnya.
         
         $user->delete();
 

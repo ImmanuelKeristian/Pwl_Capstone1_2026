@@ -1,6 +1,5 @@
 <?php
 
-
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\EventController;
@@ -26,9 +25,13 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-        Route::post('/sessions/{session}/register', [EventSessionController::class, 'register'])
-        ->middleware('role:member') // Tetap dilindungi untuk member
-        ->name('sessions.register'); // Namanya sekarang benar
+    Route::post('/sessions/{session}/register', [EventSessionController::class, 'register'])
+        ->middleware('role:member') 
+        ->name('sessions.register'); 
+
+    Route::get('/events/export/excel', [EventController::class, 'exportExcel'])->name('events.export.excel');
+    Route::get('/events/export/pdf', [EventController::class, 'exportPdf'])->name('events.export.pdf');
+
 
     // --- Grup Rute Khusus Member ---
     Route::middleware('role:member')->prefix('member')->name('member.')->group(function () {
@@ -38,7 +41,7 @@ Route::middleware('auth')->group(function () {
     });
 
     // --- Grup Rute Khusus Panitia Kegiatan ---
-    Route::middleware('role:panitia_kegiatan')->prefix('committee')->name('committee.')->group(function () {
+    Route::middleware('role:panitia_kegiatan, administrator')->prefix('committee')->name('committee.')->group(function () {
         Route::resource('events', EventController::class); 
         Route::resource('events.sessions', EventSessionController::class)->except(['index', 'show'])->shallow();
         
@@ -46,7 +49,6 @@ Route::middleware('auth')->group(function () {
         Route::get('/attendance/{session}/scan', [AttendanceController::class, 'scan'])->name('attendance.scan');
         Route::post('/attendance/process', [AttendanceController::class, 'processScan'])->name('attendance.process');
 
-        // RUTE UNTUK SERTIFIKAT
         Route::get('/certificates/{session}', [CertificateController::class, 'index'])->name('certificates.index');
         Route::post('/certificates/{registration}/upload', [CertificateController::class, 'upload'])->name('certificates.upload');
     });
@@ -61,12 +63,10 @@ Route::middleware('auth')->group(function () {
     // --- Grup Rute Khusus Administrator ---
     Route::middleware('role:administrator')->prefix('admin')->name('admin.')->group(function () {
         Route::resource('event-categories', EventCategoryController::class);
-    
-            // TAMBAHKAN RUTE INI UNTUK KELOLA PENGGUNA
-        Route::resource('users', UserController::class)->only(['index', 'edit', 'update', 'destroy']);
+
+        Route::resource('users', UserController::class)->except(['show']);
     });
 
 });
 
 require __DIR__.'/auth.php';
-

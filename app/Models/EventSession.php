@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Carbon\Carbon; // Pastikan Carbon di-import
+use Carbon\Carbon; 
 
 class EventSession extends Model
 {
@@ -21,7 +21,6 @@ class EventSession extends Model
     ];
 
     /**
-     * PERBAIKAN DI SINI:
      * Accessor untuk membuat atribut 'start_datetime' secara dinamis.
      * Ini menggabungkan 'session_date' dan 'start_time'.
      * Sekarang Anda bisa memanggilnya di view: $session->start_datetime
@@ -36,9 +35,8 @@ class EventSession extends Model
     {
         return $this->belongsTo(Event::class);
     }
-
-    // Relasi ke pendaftar
-    public function eventRegistrations()
+    // Relasi ke pendaftaran sesi   
+    public function eventRegisters()
     {
         return $this->hasMany(EventRegister::class);
     }
